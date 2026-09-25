@@ -33,6 +33,7 @@ Symlinks, so `git pull` updates them in place. Re-run the script after adding or
 | `wayfinder` | `/wayfinder` | mattpocock | tracker hardwired to GitHub Issues (`wayfinder:map` / `wayfinder:<type>` labels, `Blocked by:` body convention); grilling tickets don't require `domain-modeling` |
 | `domain-modeling` | model-invoked | mattpocock | glossary (`CONTEXT.md`) only — ADR half removed; decisions live in project docs |
 | `teach` | `/teach <topic>` | mattpocock | unchanged — run it in a dedicated learning directory, not a project repo |
+| `passbaton` | `/passbaton` | original | writes a copy-paste handoff message so a fresh session can pick up where this one left off |
 
 ## Conventions these skills assume
 
