@@ -28,8 +28,8 @@ Symlinks, so `git pull` updates them in place. Re-run the script after adding or
 | `grilling` | model-invoked | mattpocock | unchanged |
 | `research` | model-invoked | mattpocock | unchanged |
 | `to-spec` | `/to-spec` | mattpocock | publishes to **GitHub Issues** with a `spec` label (no setup skill, no triage labels); reads `AGENTS.md`/reference docs for vocabulary instead of CONTEXT.md/ADRs |
-| `implement` | `/implement <issue \| path>` | mattpocock (rewritten) | orchestrator: load spec → grill what's unclear → phase plan (user confirms) → subagents build each phase sequentially on the branch → orchestrator checks diff + runs typecheck/tests → `code-review` via subagent → one PR per spec, phases as commits |
-| `code-review` | model-invoked | mattpocock | spec source is a GitHub issue / path; standards sources are root **and nested** `AGENTS.md` + `CONTRIBUTING.md` (no tracker doc dependency) |
+| `implement` | `/implement <issue \| path>` | mattpocock (rewritten) | orchestrator: load spec → grill what's unclear → phase plan (user confirms) → Opus-class subagents build each phase sequentially on the branch → orchestrator checks diff + runs typecheck/tests → `code-review` via a Fable-class subagent, with the app running when a screen changed → one PR per spec, phases as commits |
+| `code-review` | model-invoked | mattpocock (extended) | spec source is a GitHub issue / path; standards sources are root **and nested** `AGENTS.md` + `CONTRIBUTING.md`; two axes added: **Cohesion** (right module and layer, reuses what exists) on every change and **Design** (seen running, compared with neighbouring screens) when the diff touches a screen |
 | `wayfinder` | `/wayfinder` | mattpocock | tracker hardwired to GitHub Issues (`wayfinder:map` / `wayfinder:<type>` labels, `Blocked by:` body convention); grilling tickets don't require `domain-modeling` |
 | `domain-modeling` | model-invoked | mattpocock | glossary (`CONTEXT.md`) only — ADR half removed; decisions live in project docs |
 | `teach` | `/teach <topic>` | mattpocock | unchanged — run it in a dedicated learning directory, not a project repo |
