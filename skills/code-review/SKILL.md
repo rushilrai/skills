@@ -1,14 +1,16 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along two axes — Standards (does the code follow this repo's documented coding standards?) and Spec (does the code match what the originating issue/spec asked for?). Runs both reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
+description: Review the changes since a fixed point (commit, branch, tag, or merge-base) along three axes — Standards (does the code follow this repo's documented coding standards?), Spec (does the code match what the originating issue/spec asked for?) and Cohesion (does the change sit where the codebase would expect it and reuse what is there?) — plus a Design axis for changes that touch a screen. Runs the reviews in parallel sub-agents and reports them side by side. Use when the user wants to review a branch, a PR, work-in-progress changes, or asks to "review since X".
 ---
 
-Two-axis review of the diff between `HEAD` and a fixed point the user supplies:
+Multi-axis review of the diff between `HEAD` and a fixed point the user supplies:
 
 - **Standards** — does the code conform to this repo's documented coding standards?
 - **Spec** — does the code faithfully implement the originating issue / spec?
+- **Cohesion** — does the change fit how the codebase is already structured: right module and layer, reuses what exists, reads where a maintainer would look for it?
+- **Design** — only when the diff touches a screen: does it look and behave like the rest of the product, seen running?
 
-Both axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+Each axis runs as a **parallel sub-agent** so they don't pollute each other's context, then this skill aggregates their findings. Review sub-agents run on the strongest read-only model available (Fable-class if the harness offers it); they must not edit files.
 
 ## Process
 
@@ -53,7 +55,11 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 - **Middle Man** — a class or function that mostly just delegates onward. → cut it, call the real target direct.
 - **Refused Bequest** — a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.
 
-### 4. Spawn both sub-agents in parallel
+### 4. Decide whether the Design axis runs
+
+The Design axis runs when the diff touches anything a user sees: screens, components, routes, styles, copy, motion, or the marketing site. Decide from the file list, not from the commit messages. If it runs, it needs the app running: ask the user how to launch it if the repo's `AGENTS.md` does not say (a simulator build, `bun run dev`, a preview), and note in the report if it could not be launched and the pass was done from code alone.
+
+### 5. Spawn the sub-agents in parallel
 
 **Standards sub-agent prompt** — include:
 
@@ -69,17 +75,31 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
-### 5. Aggregate
+**Cohesion sub-agent prompt** — include:
 
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings — the two axes are deliberately separate (see _Why two axes_).
+- The diff command and commit list.
+- The list of standards-source files from step 3 (the nested `AGENTS.md` files describe each workspace's layering; this axis reads them for structure, not style).
+- The brief: "Read the diff against the surrounding codebase, not just itself. Report: (a) code placed in the wrong module, layer or workspace for what it does (cite where the equivalent existing code lives); (b) a parallel to something that already exists: a second helper, type, query, constant or component doing the same job as one already in the tree, name both; (c) a new abstraction, folder or pattern that the rest of the codebase does not use, when an existing pattern would have carried it; (d) a change that a maintainer would not find where they would first look. For each finding, say what the cohesive version would be. Judgement calls, not violations. Under 400 words."
+
+**Design sub-agent prompt** (only when step 4 said so) — include:
+
+- The diff command and commit list, and the list of screens, routes or pages the diff touches.
+- How to run the app and reach each touched screen; the repo's `AGENTS.md` for the app, which should name the design conventions (spacing, type, colour, motion, empty and loading and error states).
+- The brief: "Open each touched screen in the running app and compare it with the neighbouring screens of the same product. Report: (a) anything that does not match the product's existing look: spacing, type, colour, iconography, corner radius, motion; (b) missing states: empty, loading, error, long content, no network, where the neighbours have them; (c) copy that does not read like the rest of the product; (d) interactions that fight the platform's conventions. Attach a screenshot path for each finding where you can. Findings only; do not propose redesigns. Under 400 words."
+
+### 6. Aggregate
+
+Present the reports under `## Standards`, `## Spec`, `## Cohesion` and, when it ran, `## Design` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings — the axes are deliberately separate (see _Why separate axes_).
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes — that's the reranking the separation exists to prevent.
 
-## Why two axes
+## Why separate axes
 
-A change can pass one axis and fail the other:
+A change can pass one axis and fail another:
 
 - Code that follows every standard but implements the wrong thing → **Standards pass, Spec fail.**
 - Code that does exactly what the issue asked but breaks the project's conventions → **Spec pass, Standards fail.**
+- Code that is correct and clean but lands in the wrong module beside a duplicate of something that already existed → **Standards and Spec pass, Cohesion fail.**
+- Code that is correct, clean and well placed but whose screen looks nothing like the one next to it → **Design fail.**
 
-Reporting them separately stops one axis from masking the other.
+Reporting them separately stops one axis from masking another.

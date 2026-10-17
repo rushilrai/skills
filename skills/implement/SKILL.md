@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Implement a spec (GitHub issue or file) end to end: clarify what's unclear, plan phases, have subagents build each phase, gate on typecheck + tests, review via subagent, ship one PR with phases as commits."
+description: "Implement a spec (GitHub issue or file) end to end: clarify what's unclear, plan phases, have subagents build each phase, gate on typecheck + tests, review on every axis (standards, spec, cohesion, and design when a screen changed) via subagent, ship one PR with phases as commits."
 disable-model-invocation: true
 argument-hint: "<issue number | spec path> [extra guidance]"
 ---
@@ -33,7 +33,7 @@ Show the plan to the user. Do not start until they confirm.
 
 Default: phases run **sequentially on the branch** — each subagent starts from the tree the previous one left. Use worktree isolation only when two phases are genuinely independent and the user has agreed to parallelise.
 
-The subagent prompt must carry: the spec (or link), the phase's slice of the plan, the relevant `AGENTS.md` rules, the seams and the tests expected, and the instruction to use the "tdd" skill where a test-first loop fits. Prefer the strongest model available for subagents (Opus-class); the phase's correctness is worth more than the tokens.
+The subagent prompt must carry: the spec (or link), the phase's slice of the plan, the relevant `AGENTS.md` and `CONTRIBUTING.md` rules, the seams and the tests expected, and the instruction to write the test before the code where a test-first loop fits. Builders run on the strongest model available for implementation (Opus-class); the phase's correctness is worth more than the tokens. Reviewers (step 6) run on the strongest read-only model (Fable-class) and never edit.
 
 When the subagent reports back, **you check** — read the diff, don't trust the summary:
 
@@ -45,7 +45,7 @@ If it fails, send the subagent back with the specific failure. Loop until green.
 
 ## 6. Review before hand-off
 
-After the last phase: run the full gates one more time (typecheck, lint if configured, whole test suite), then spawn a **subagent** that calls the Skill tool with "code-review" against the merge-base of the branch, passing the spec source. Read its Standards and Spec findings.
+After the last phase: run the full gates one more time (typecheck, lint if configured, whole test suite), then spawn a **subagent** that calls the Skill tool with "code-review" against the merge-base of the branch, passing the spec source and the list of screens the work touched, if any. The review runs Standards, Spec and Cohesion on every change and Design when a screen changed; for Design, launch the app the way the repo's `AGENTS.md` describes (simulator, dev server or preview) before the review starts, so the reviewer sees it running. Read every axis's findings.
 
 - Fix everything real (via a subagent for anything non-trivial), re-run the gates, and commit the fixes as their own commit.
 - Findings you disagree with: say why in the PR description, don't silently drop them.
