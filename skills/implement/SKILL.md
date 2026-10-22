@@ -40,7 +40,7 @@ Show the plan to the user as waves, with the milestones marked and the parallel 
 
 ## 5. Build each wave with subagents
 
-Each phase in a wave gets its own builder subagent in its **own worktree** branched from the integration branch as it stands at the start of the wave. A wave of one phase runs the same way, in one worktree. Never let two builders share a working tree.
+Each phase in a wave gets its own builder subagent in its **own worktree** branched from the integration branch as it stands at the start of the wave. A wave of one phase runs the same way, in one worktree. Never let two builders share a working tree. Create worktrees inside the repository in a gitignored folder (the repo's own convention if it has one, otherwise `.claude/worktrees/<name>`), never beside it: per-folder setup such as a secrets manager's login or project only applies inside the repo folder, and outside it the same commands can silently pick up another account.
 
 The subagent prompt must carry: the spec (or link), the phase's slice of the plan, which files the other phases in the wave are touching so it stays out of them, the relevant `AGENTS.md` and `CONTRIBUTING.md` rules, the seams and the tests expected, and the instruction to write the test before the code where a test-first loop fits. Builders run on the strongest model available for implementation (Opus-class); the phase's correctness is worth more than the tokens. Reviewers run on the strongest read-only model (Fable-class) and never edit.
 
