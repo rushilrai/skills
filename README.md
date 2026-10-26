@@ -30,8 +30,6 @@ Symlinks, so `git pull` updates them in place. Re-run the script after adding or
 | `to-spec` | `/to-spec` | mattpocock | publishes to **GitHub Issues** with a `spec` label (no setup skill, no triage labels); reads `AGENTS.md`/reference docs for vocabulary instead of CONTEXT.md/ADRs |
 | `implement` | `/implement <issue \| path>` | mattpocock (rewritten) | orchestrator: load spec → grill what's unclear → phases planned as a dependency graph in waves (user confirms, parallel count stated) → Opus-class builders run each wave in parallel worktrees, orchestrator merges back in dependency order and runs the gates → `code-review` via a Fable-class subagent at each milestone and at the end, with the app running when a screen changed → one PR per spec, phases as commits |
 | `code-review` | model-invoked | mattpocock (extended) | spec source is a GitHub issue / path; standards sources are root **and nested** `AGENTS.md` + `CONTRIBUTING.md`; two axes added: **Cohesion** (right module and layer, reuses what exists) on every change and **Design** (seen running, compared with neighbouring screens) when the diff touches a screen |
-| `wayfinder` | `/wayfinder` | mattpocock | tracker hardwired to GitHub Issues (`wayfinder:map` / `wayfinder:<type>` labels, `Blocked by:` body convention); grilling tickets don't require `domain-modeling` |
-| `domain-modeling` | model-invoked | mattpocock | glossary (`CONTEXT.md`) only — ADR half removed; decisions live in project docs |
 | `teach` | `/teach <topic>` | mattpocock | unchanged — run it in a dedicated learning directory, not a project repo |
 | `passbaton` | `/passbaton` | original | writes a copy-paste handoff message so a fresh session can pick up where this one left off |
 
